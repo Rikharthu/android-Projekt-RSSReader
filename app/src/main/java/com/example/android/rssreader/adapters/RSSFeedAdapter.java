@@ -7,6 +7,7 @@ import android.support.v7.widget.RecyclerView.Adapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebView;
 import android.widget.TextView;
 
 import com.example.android.rssreader.R;
@@ -35,7 +36,7 @@ public class RSSFeedAdapter extends RecyclerView.Adapter<RSSFeedAdapter.ViewHold
     public void onBindViewHolder(ViewHolder holder, int position) {
         // might or might not be
         holder.setTitle(items.get(position).getTitle());
-        holder.setDescription(items.get(position).getDescription());
+        holder.setDescription(items.get(position).getPlainTextDescription());
     }
 
     @Override
@@ -46,12 +47,14 @@ public class RSSFeedAdapter extends RecyclerView.Adapter<RSSFeedAdapter.ViewHold
     static class ViewHolder extends RecyclerView.ViewHolder {
         private TextView titleTv;
         private TextView descriptionTv;
+        private WebView descriptionWv;
 
 
         public ViewHolder(View itemView) {
             super(itemView);
             titleTv= (TextView) itemView.findViewById(R.id.title_text);
             descriptionTv= (TextView) itemView.findViewById(R.id.description_text);
+//            descriptionWv= (WebView) itemView.findViewById(R.id.description_text);
         }
 
         public void setTitle(String title){
@@ -60,6 +63,7 @@ public class RSSFeedAdapter extends RecyclerView.Adapter<RSSFeedAdapter.ViewHold
 
         public void setDescription(String description){
             descriptionTv.setText(description);
+//            descriptionWv.loadDataWithBaseURL("", description, "text/html", "UTF-8", "");
         }
     }
 

@@ -1,6 +1,7 @@
 package com.example.android.rssreader.utils;
 
 
+import android.text.Html;
 import android.util.Log;
 
 import com.example.android.rssreader.model.RSSFeed;
@@ -30,9 +31,7 @@ public class RSSFeedHandler extends DefaultHandler {
     RSSFeed feed;
     RSSItem item;
 
-    // used to determine when the various elements of the XML file are being parsed
-    boolean feedTitleHasBeenRead = false;
-    boolean feedPubDateHasBeenRead = false;
+    StringBuilder descriptionBuilder;
 
     boolean isTitle = false;
     boolean isDescription = false;
@@ -84,6 +83,7 @@ public class RSSFeedHandler extends DefaultHandler {
             isTitle = true;
             return;
         } else if (qName.equals(TAG_DESCRIPTION)) {
+            descriptionBuilder=new StringBuilder();
             isDescription = true;
             return;
         } else if (qName.equals(TAG_LINK)) {
@@ -119,6 +119,12 @@ public class RSSFeedHandler extends DefaultHandler {
             return;
         }else if(qName.equals(TAG_IMAGE)){
             isImage=false;
+        }else if(qName.equals(TAG_DESCRIPTION)){
+            if(isItem){
+                isDescription=false;
+                item.setDescription(descriptionBuilder.toString());
+                descriptionBuilder=null;
+            }
         }
     }
 
@@ -183,8 +189,18 @@ public class RSSFeedHandler extends DefaultHandler {
                 item.setTitle(s);
                 isTitle=false;
             }else if(isDescription){
-                item.setDescription(s);
-                isDescription=false;
+//                if (s.startsWith("<")) {
+                    // TODO somehow save dat link (test with CNN)
+                    // CDATA?
+                    // links to somewhere
+//                    item.setDescription("No description available.");
+//                } else {
+                // because stupid "clever" rss providers like to insert html tags into description
+//                String prevDesc = item.getDescription()
+//                    item.setDescription(item.getDescription()+s);
+//                }
+//                isDescription=false;
+                descriptionBuilder.append(s);
             }else if(isLink){
                 item.setLink(s);
                 isLink=false;
@@ -214,7 +230,6 @@ public class RSSFeedHandler extends DefaultHandler {
                     feed.setImageUri(s);
                     isUrl=false;
                 }
-                isImage=false;
             }
         }
     }

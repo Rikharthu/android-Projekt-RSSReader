@@ -1,6 +1,8 @@
 package com.example.android.rssreader.model;
 
 
+import android.text.Html;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -39,6 +41,11 @@ public class RSSItem {
 
     public String getDescription() {
         return description;
+    }
+
+    /** Get description without HTML tags (description may contain HTML tags)*/
+    public String getPlainTextDescription(){
+        return Html.fromHtml(getDescription()).toString();
     }
 
     public void setLink(String link) {
