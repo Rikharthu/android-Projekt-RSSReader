@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory
+        android:title="News List">
+
+
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:title="Crop Description"
+            android:summary="Crop feed description text"
+            android:key="pref_crop_desc"/>
+
+        <!--TODO implement validation (between 0 and 200?)
+        Create with custom preference
+        https://developer.android.com/guide/topics/ui/settings.html#Custom -->
+        <EditTextPreference
+            android:defaultValue="60"
+            android:title="Characters to Show"
+            android:dependency="pref_crop_desc"
+            android:summary="Set how many characters do you wish to see in a cropped description"
+            android:dialogTitle="Character count"
+            android:dialogMessage="Please input max character count you wish to see in a cropped description (between 0 and 200)"
+            android:numeric="integer"
+            android:key="pref_crop_chars_count"/>
+
+        <com.example.android.rssreader.TimePreference
+            android:key="timePrefA_Key"
+            android:title="TIIITLE"/>
+
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="Other Settings">
+
+        <PreferenceScreen
+                android:key="button_voicemail_setting_key"
+                android:title="@string/voicemail_settings"
+                android:persistent="false"
+                >
+            <Preference android:title="@string/prefs_web_page" >
+                <intent android:action="android.intent.action.VIEW"
+                        android:data="http://www.example.com" />
+            </Preference>
+        </PreferenceScreen>
+
+    </PreferenceCategory>
+    <ListPreference
+        android:key="list_preference"
+        android:title="@string/title_list_preference"
+        android:dialogTitle="@string/dialog_title_list_preference"
+        android:entries="@array/rounding_keys"
+        android:entryValues="@array/rounding_values" />
+<!-- Each preference has a corresponding key-value pair that the system saves in the
+default shared preferences file. Whenever the user changes a setting, the system
+automatically updates that files -->
+
+</PreferenceScreen>

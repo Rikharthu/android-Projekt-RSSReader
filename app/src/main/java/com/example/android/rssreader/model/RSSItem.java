@@ -16,7 +16,7 @@ public class RSSItem {
 
     // << optional >>
     private String link = null;
-    private String pubDate = null;
+    private long pubDate = System.nanoTime(); // probably replace with -1 and check if it is known
     private String category = null;
 
     private SimpleDateFormat dateOutFormat =
@@ -57,10 +57,17 @@ public class RSSItem {
     }
 
     public void setPubDate(String pubDate) {
-        this.pubDate = pubDate;
+        Date date;
+        try {
+            date = dateInFormat.parse(pubDate.trim());
+        }
+        catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
+        this.pubDate=date.getTime();
     }
 
-    public String getPubDate() {
+    public long getPubDate() {
         return pubDate;
     }
 
@@ -73,14 +80,7 @@ public class RSSItem {
     }
 
     public String getPubDateFormatted() {
-        String pubDateFormatted = "";
-        try {
-            Date date = dateInFormat.parse(pubDate.trim());
-            pubDateFormatted = dateOutFormat.format(date);
-            return pubDateFormatted;
-        }
-        catch (ParseException e) {
-            return pubDate;
-        }
+        Date date = new Date(pubDate);
+        return  dateOutFormat.format(date);
     }
 }

@@ -1,5 +1,6 @@
-package com.example.android.rssreader;
+package com.example.android.rssreader.ui;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.ColorDrawable;
 import android.support.v7.app.AppCompatActivity;
@@ -8,6 +9,8 @@ import android.support.v7.graphics.Palette;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -20,6 +23,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.example.android.rssreader.R;
 import com.example.android.rssreader.adapters.RSSFeedAdapter;
 import com.example.android.rssreader.model.RSSFeed;
 import com.example.android.rssreader.model.RSSItem;
@@ -28,7 +32,6 @@ import com.example.android.rssreader.utils.RSSFeedHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 
-import java.io.FileInputStream;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -92,7 +95,7 @@ public class MainActivity extends AppCompatActivity {
                             feed=readFile(s);
                             if(feed!=null){
                                 outputTv.setText(feed.getTitle()+"\n"+feed.getDescription()+"\n"
-                                        +"lastBuildDate="+feed.getLastBuildDate()
+                                        +"lastBuildDate="+feed.getLastBuildDateFormatted()
                                 +"\nlink "+feed.getLink());
 
                                 // use a linear layout manager
@@ -182,4 +185,22 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch(item.getItemId()){
+            case R.id.menu_settings:
+                // open settings activity
+                Toast.makeText(this, "Settings", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(this,SettingsActivity.class);
+                startActivity(intent);
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 }

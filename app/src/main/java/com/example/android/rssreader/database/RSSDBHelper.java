@@ -17,8 +17,10 @@ public class RSSDBHelper extends SQLiteOpenHelper {
     private static final String SQL_CREATE_CHANNELS_TABLE =
             "CREATE TABLE " + RSSDBContract.FEED_TABLE_NAME + " (" +
                     RSSDBContract._ID + " INTEGER PRIMARY KEY," +
-                    RSSDBContract.COLUMN_NAME_TITLE + TEXT_TYPE + COMMA_SEP +
-                    RSSDBContract.COLUMN_NAME_SUBTITLE + TEXT_TYPE + " )";
+                    RSSDBContract.FEED_COLUMN_NAME_TITLE + " TEXT NOT NULL," +
+                    RSSDBContract.FEED_COLUMN_NAME_DESCRIPTION + " TEXT NOT NULL," +
+                    RSSDBContract.FEED_COLUMN_NAME_LAST_BUILD_DATE + " INTEGER"  +
+                    RSSDBContract.FEED_COLUMN_NAME_LINK + " TEXT NOT NULL,"  + " )";
 
 //    private static final String SQL_DELETE_ENTRIES =
 //            "DROP TABLE IF EXISTS " + FeedEntry.TABLE_NAME;

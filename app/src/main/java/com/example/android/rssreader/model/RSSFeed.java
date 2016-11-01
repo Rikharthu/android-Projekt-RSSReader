@@ -14,7 +14,7 @@ public class RSSFeed {
     private String description=null;
 
     // << optional >>
-    private String lastBuildDate = null;
+    private long lastBuildDate = System.currentTimeMillis();
     private String imageUri=null;
 
     // items
@@ -22,6 +22,9 @@ public class RSSFeed {
 
     private SimpleDateFormat dateInFormat =
             new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z");
+
+    private SimpleDateFormat dateOutFormat =
+            new SimpleDateFormat("EEEE h:mm a (MMM d)");
 
     public RSSFeed() {
         items = new ArrayList<RSSItem>();
@@ -60,10 +63,18 @@ public class RSSFeed {
     }
 
     public void setLastBuildDate(String lastBuildDate) {
-        this.lastBuildDate = lastBuildDate;
+        Date date = new Date(0);
+        try {
+            date = dateInFormat.parse(lastBuildDate.trim());
+        }
+        catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
+        long dateMillis = date.getTime();
+        this.lastBuildDate=dateMillis;
     }
 
-    public String getLastBuildDate() {
+    public long getLastBuildDate() {
         return lastBuildDate;
     }
 
@@ -84,16 +95,9 @@ public class RSSFeed {
         return items.size();
     }
 
-    public long getLastBuildDateMillis() {
-        Date date = new Date(0);
-        try {
-            date = dateInFormat.parse(lastBuildDate.trim());
-        }
-        catch (ParseException e) {
-            throw new RuntimeException(e);
-        }
-        long dateMillis = date.getTime();
-        return dateMillis;
+    public String getLastBuildDateFormatted(){
+        Date date = new Date(lastBuildDate);
+        return dateOutFormat.format(date);
     }
 
 }
