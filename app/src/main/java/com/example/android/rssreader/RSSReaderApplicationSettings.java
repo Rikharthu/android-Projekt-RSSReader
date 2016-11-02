@@ -8,6 +8,7 @@ import android.preference.PreferenceManager;
 /** Preferences Access layer */
 public class RSSReaderApplicationSettings  {
     public static final String CROP_DESCRIPTION = "pref_crop_desc";
+    private static final String SHOW_DESCRIPTION = "show_desc_text";
     SharedPreferences mSharedPreferences;
 
     public RSSReaderApplicationSettings(Context context) {
@@ -34,6 +35,10 @@ public class RSSReaderApplicationSettings  {
 
     public boolean shouldCropDescription(){
         return mSharedPreferences.getBoolean(CROP_DESCRIPTION,true);
+    }
+
+    public boolean shouldShowDescription(){
+        return mSharedPreferences.getBoolean(SHOW_DESCRIPTION,true);
     }
 
     public int getMaxCropDescChars(){

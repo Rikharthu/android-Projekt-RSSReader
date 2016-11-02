@@ -2,13 +2,14 @@ package com.example.android.rssreader.utils;
 
 
 import java.text.SimpleDateFormat;
+import java.util.Locale;
 
 public abstract class RSSUtils {
 
-    private SimpleDateFormat dateOutFormat =
-            new SimpleDateFormat("EEEE h:mm a (MMM d)");
+    public static final SimpleDateFormat DATE_OUT_FORMAT =
+            new SimpleDateFormat("EEEE h:mm a (MMM d)", Locale.ENGLISH);
 
-    private SimpleDateFormat dateInFormat =
-            new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z");
+    public static final SimpleDateFormat DATE_IN_FORMAT =
+            new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale.ENGLISH);
 
 }

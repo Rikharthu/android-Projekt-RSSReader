@@ -31,6 +31,9 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
 //            rememberPercPref.setSummary(sharedPreferences.getString(key, "This was just edited!"));
 //            Log.d(TAG,"You")
             Toast.makeText(getActivity(), "You edited 'Remember Tip Percent'!", Toast.LENGTH_SHORT).show();
+        }if(key.equals("show_desc_text") || key.equals("pref_crop_desc") || key.equals("pref_crop_chars_count")){
+            // refresh adapter
+            Toast.makeText(getActivity(), "Should refresh adapter", Toast.LENGTH_SHORT).show();
         }
     }
 

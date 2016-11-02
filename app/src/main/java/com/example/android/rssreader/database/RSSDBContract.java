@@ -11,7 +11,7 @@ public interface RSSDBContract extends BaseColumns {
     String FEED_COLUMN_NAME_LINK ="link";
     String FEED_COLUMN_NAME_DESCRIPTION ="description";
     String FEED_COLUMN_NAME_LAST_BUILD_DATE ="lastBuildDate";
-    String FEED_COLUMN_NAME_IMAGE_URI ="imageUri";
+    String FEED_COLUMN_NAME_IMAGE ="bitmap";
 
     // RSSItem
     String ITEMS_TABLE_NAME="items";

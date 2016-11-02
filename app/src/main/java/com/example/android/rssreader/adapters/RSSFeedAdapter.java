@@ -13,7 +13,11 @@ import com.example.android.rssreader.R;
 import com.example.android.rssreader.RSSReaderApplicationSettings;
 import com.example.android.rssreader.model.RSSItem;
 
+import org.ocpsoft.prettytime.PrettyTime;
+
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
 
 public class RSSFeedAdapter extends RecyclerView.Adapter<RSSFeedAdapter.ViewHolder> {
 
@@ -23,6 +27,7 @@ public class RSSFeedAdapter extends RecyclerView.Adapter<RSSFeedAdapter.ViewHold
     private int maxDescCharsCount;
 
     private boolean cropDesc;
+    private boolean showDesc;
 
     public RSSFeedAdapter(Context ctx, ArrayList<RSSItem> items) {
         this.ctx = ctx;
@@ -30,6 +35,7 @@ public class RSSFeedAdapter extends RecyclerView.Adapter<RSSFeedAdapter.ViewHold
         RSSReaderApplicationSettings settings = new RSSReaderApplicationSettings(ctx);
         cropDesc=settings.shouldCropDescription();
         maxDescCharsCount=settings.getMaxCropDescChars();
+        showDesc=settings.shouldShowDescription();
     }
 
     @Override
@@ -46,28 +52,17 @@ public class RSSFeedAdapter extends RecyclerView.Adapter<RSSFeedAdapter.ViewHold
 
         // show first 100 characters if not selected "show full desc" in preferences
         // prepare
-        String fullDesc = items.get(position).getPlainTextDescription();
-        if(cropDesc) {
-            if (fullDesc.length() <= maxDescCharsCount) {
-                holder.setDescription(fullDesc);
-            } else {
-                // index of first space after 100 characters
-                int endIndex = fullDesc.indexOf(' ', maxDescCharsCount);
-                if (endIndex != -1) {
-                    holder.setDescription(fullDesc.substring(0, endIndex) + " . . . ");
-                } else {
-                    // find first space before index 60 (reverse string and find first ' ')
-                    endIndex = new StringBuilder(fullDesc.substring(0, maxDescCharsCount)).reverse().toString().indexOf(' ');
-                    if (endIndex != -1) {
-                        holder.setDescription(fullDesc.substring(0, maxDescCharsCount - endIndex) + " . . . ");
-                    } else {
-                        holder.setDescription(fullDesc.substring(maxDescCharsCount));
-                    }
-                }
-            }
+        if(!showDesc){
+            // do not show description
+            holder.bind(items.get(position),0);
+        }else if(cropDesc) {
+            // crop description to maxDescCharsCount
+            holder.bind(items.get(position),maxDescCharsCount);
         }else{
-            holder.setDescription(fullDesc);
+            // do not crop
+            holder.bind(items.get(position),-1);
         }
+        // else - do not show text at all
     }
 
     @Override
@@ -76,9 +71,12 @@ public class RSSFeedAdapter extends RecyclerView.Adapter<RSSFeedAdapter.ViewHold
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+        private RSSItem rssItem;
         private TextView titleTv;
         private TextView descriptionTv;
+        private TextView dateTv;
         private WebView descriptionWv;
+        private View dividerView;
         private RSSItemClickListener itemClickListener;
 
 
@@ -86,12 +84,63 @@ public class RSSFeedAdapter extends RecyclerView.Adapter<RSSFeedAdapter.ViewHold
             super(itemView);
             titleTv= (TextView) itemView.findViewById(R.id.title_text);
             descriptionTv= (TextView) itemView.findViewById(R.id.description_text);
+            dateTv= (TextView) itemView.findViewById(R.id.date_tv);
+            dividerView=itemView.findViewById(R.id.item_divider);
 //            descriptionWv= (WebView) itemView.findViewById(R.id.description_text);
             itemView.setOnClickListener(this);
         }
 
         public void setTitle(String title){
             titleTv.setText(title);
+        }
+
+        /**
+         * Bind this ViewHolder to represent a particular RSSItem
+         * @param item RSSItem to bind
+         * @param descCharsCount how many description characters to show.
+         *                       -1 to show all,
+         *                       0 to hide description.
+         */
+        public void bind(RSSItem item, int descCharsCount){
+            rssItem=item;
+            // TODO refactor - extract somewhere (to utils probably)
+            PrettyTime p = new PrettyTime();
+            // match device locale
+            p.setLocale(Locale.getDefault());
+            dateTv.setText(p.format(new Date(item.getPubDate())));
+            titleTv.setText(rssItem.getTitle());
+            // description text
+            if(descCharsCount==0){
+                dividerView.setVisibility(View.GONE);
+                descriptionTv.setVisibility(View.GONE);
+            }else {
+                dividerView.setVisibility(View.VISIBLE);
+                descriptionTv.setVisibility(View.VISIBLE);
+                if (descCharsCount == -1) {
+                    // show full description
+                    descriptionTv.setText(rssItem.getPlainTextDescription());
+                } else if (descCharsCount != 0) {
+                    String fullDesc = rssItem.getPlainTextDescription();
+                    if (fullDesc.length() <= descCharsCount) {
+                        descriptionTv.setText(fullDesc);
+                    } else {
+                        // index of first ' ', ','  after descCharsCount characters
+                        int endIndex = fullDesc.indexOf(' ', descCharsCount);
+                        if (endIndex != -1) {
+                            descriptionTv.setText(fullDesc.substring(0, endIndex) + " . . . ");
+                        } else {
+                            // find first space before descCharsCount (reverse string and find first ' ' and sum up)
+                            endIndex = new StringBuilder(fullDesc.substring(0, descCharsCount)).reverse().toString().indexOf(' ');
+                            if (endIndex != -1) {
+                                descriptionTv.setText(fullDesc.substring(0, descCharsCount - endIndex) + " . . . ");
+                            } else {
+                                descriptionTv.setText(fullDesc.substring(descCharsCount));
+                            }
+                        }
+                    }
+                }
+            }
+
         }
 
         public void setDescription(String description){

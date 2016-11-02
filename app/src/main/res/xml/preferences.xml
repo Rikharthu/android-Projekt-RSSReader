@@ -4,9 +4,15 @@
     <PreferenceCategory
         android:title="News List">
 
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:title="Show Description"
+            android:summary="Show or hide description text while in a news list."
+            android:key="show_desc_text"/>
 
         <CheckBoxPreference
             android:defaultValue="false"
+            android:dependency="show_desc_text"
             android:title="Crop Description"
             android:summary="Crop feed description text"
             android:key="pref_crop_desc"/>
@@ -26,7 +32,7 @@
 
         <com.example.android.rssreader.TimePreference
             android:key="timePrefA_Key"
-            android:title="TIIITLE"/>
+            android:title="Test time preference"/>
 
 
     </PreferenceCategory>

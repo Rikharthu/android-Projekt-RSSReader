@@ -1,13 +1,20 @@
 package com.example.android.rssreader.model;
 
 
+import android.graphics.Bitmap;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Locale;
+
+import static com.example.android.rssreader.utils.RSSUtils.DATE_IN_FORMAT;
+import static com.example.android.rssreader.utils.RSSUtils.DATE_OUT_FORMAT;
 
 public class RSSFeed {
 
+    private long id;
     // << required >>
     private String title = null;
     private String link=null;
@@ -16,15 +23,10 @@ public class RSSFeed {
     // << optional >>
     private long lastBuildDate = System.currentTimeMillis();
     private String imageUri=null;
+    private Bitmap logo=null;
 
     // items
     private ArrayList<RSSItem> items;
-
-    private SimpleDateFormat dateInFormat =
-            new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z");
-
-    private SimpleDateFormat dateOutFormat =
-            new SimpleDateFormat("EEEE h:mm a (MMM d)");
 
     public RSSFeed() {
         items = new ArrayList<RSSItem>();
@@ -65,13 +67,17 @@ public class RSSFeed {
     public void setLastBuildDate(String lastBuildDate) {
         Date date = new Date(0);
         try {
-            date = dateInFormat.parse(lastBuildDate.trim());
+            date = DATE_IN_FORMAT.parse(lastBuildDate.trim());
         }
         catch (ParseException e) {
             throw new RuntimeException(e);
         }
         long dateMillis = date.getTime();
         this.lastBuildDate=dateMillis;
+    }
+
+    public void setLastBuildDate(long dateMillis){
+        lastBuildDate=dateMillis;
     }
 
     public long getLastBuildDate() {
@@ -97,7 +103,14 @@ public class RSSFeed {
 
     public String getLastBuildDateFormatted(){
         Date date = new Date(lastBuildDate);
-        return dateOutFormat.format(date);
+        return DATE_OUT_FORMAT.format(date);
     }
 
+    public Bitmap getLogo() {
+        return logo;
+    }
+
+    public void setLogo(Bitmap logo) {
+        this.logo = logo;
+    }
 }

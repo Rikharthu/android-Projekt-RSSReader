@@ -1,6 +1,7 @@
 package com.example.android.rssreader.ui;
 
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.drawable.ColorDrawable;
 import android.support.v7.app.AppCompatActivity;
@@ -25,6 +26,8 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.android.rssreader.R;
 import com.example.android.rssreader.adapters.RSSFeedAdapter;
+import com.example.android.rssreader.database.RSSDBContract;
+import com.example.android.rssreader.database.RSSDBHelper;
 import com.example.android.rssreader.model.RSSFeed;
 import com.example.android.rssreader.model.RSSItem;
 import com.example.android.rssreader.utils.RSSFeedHandler;
@@ -33,9 +36,6 @@ import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 
 import java.io.StringReader;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
 
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -54,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
     // TODO также не читате их дескрипшн у items
 //    public static final String URL="https://lenta.ru/rss/news";
     // Yandex
+    // TODO у них дата по другому хранится
 //    public static final String URL="https://news.yandex.ru/world.rss";
     // EurekaAlert!
 //    public static final String URL="https://www.eurekalert.org/rss/technology_engineering.xml";
@@ -78,6 +79,19 @@ public class MainActivity extends AppCompatActivity {
         rssItemsRv= (RecyclerView) findViewById(R.id.item_rv);
         channelImageIv= (ImageView) findViewById(R.id.channel_image);
 
+        // database
+        final RSSDBHelper helper=RSSDBHelper.getInstance(this);
+        Cursor dbCursor = helper.getReadableDatabase().query(RSSDBContract.FEED_TABLE_NAME, null, null, null, null, null, null);
+        String[] columnNames = dbCursor.getColumnNames();
+        while(dbCursor.moveToNext()){
+            Log.d(LOG_TAG,"title: "+dbCursor.getString(dbCursor.getColumnIndex("title"))+"");
+        }
+        String columns="";
+        for (String column: columnNames) {
+            columns+=" "+column;
+        }
+        Log.d(LOG_TAG,"db columns: "+columns);
+
         // Instantiate the RequestQueue.
         queue = Volley.newRequestQueue(this);
 
@@ -87,13 +101,20 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(String response) {
                         Log.d(LOG_TAG,response);
-                        try {
+
                             // FIXME в некоторых рсс надо декодить кирилилцу, в некоторых не надо
                             // decode cyrillic
-                            String s = URLDecoder.decode(URLEncoder.encode(response, "iso8859-1"),"UTF-8");
+//                            String s = URLDecoder.decode(URLEncoder.encode(response, "iso8859-1"),"UTF-8");
+//                            Log.d(LOG_TAG,s);
 //                            outputTv.setText(s);
-                            feed=readFile(s);
+                            feed=readFile(response);
+                        long id=helper.saveRSSFeed(feed);
+                        feed=helper.getRSSFeed(id,true);
                             if(feed!=null){
+                                // TODO put to db
+                                helper.saveRSSFeed(
+                                        feed
+                                );
                                 outputTv.setText(feed.getTitle()+"\n"+feed.getDescription()+"\n"
                                         +"lastBuildDate="+feed.getLastBuildDateFormatted()
                                 +"\nlink "+feed.getLink());
@@ -106,12 +127,15 @@ public class MainActivity extends AppCompatActivity {
                                 rssItemsAdapter = new RSSFeedAdapter(MainActivity.this,feed.getAllItems());
                                 rssItemsRv.setAdapter(rssItemsAdapter);
 
+                                // TODO refactor-move
                                 // download channel image
                                 // Retrieves an image specified by the URL, displays it in the UI.
                                 ImageRequest request = new ImageRequest(feed.getImageUri(),
                                         new Response.Listener<Bitmap>() {
                                             @Override
                                             public void onResponse(Bitmap bitmap) {
+                                                Log.d(LOG_TAG,"bitmap byte count: "+bitmap.getByteCount()+"");
+                                                feed.setLogo(bitmap);
                                                 Palette palette = Palette.from(bitmap).generate();
                                                 channelImageIv.setImageBitmap(bitmap);
                                                 // set panel colors
@@ -133,9 +157,7 @@ public class MainActivity extends AppCompatActivity {
                                         });
                                 queue.add(request);
                             }
-                        } catch (UnsupportedEncodingException e) {
-                            e.printStackTrace();
-                        }
+
                     }
                 }, new Response.ErrorListener() {
             @Override
