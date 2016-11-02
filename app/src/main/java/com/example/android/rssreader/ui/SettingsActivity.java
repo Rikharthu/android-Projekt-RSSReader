@@ -10,6 +10,10 @@ import java.util.List;
 
 public class SettingsActivity extends PreferenceActivity {
 
+    interface SettingsChangedListener{
+        void onSettingsChanged(int code);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

@@ -3,6 +3,8 @@ package com.example.android.rssreader.model;
 
 import android.graphics.Bitmap;
 
+import com.example.android.rssreader.utils.RSSUtils;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -65,15 +67,7 @@ public class RSSFeed {
     }
 
     public void setLastBuildDate(String lastBuildDate) {
-        Date date = new Date(0);
-        try {
-            date = DATE_IN_FORMAT.parse(lastBuildDate.trim());
-        }
-        catch (ParseException e) {
-            throw new RuntimeException(e);
-        }
-        long dateMillis = date.getTime();
-        this.lastBuildDate=dateMillis;
+        this.lastBuildDate=RSSUtils.strDateToMillis(lastBuildDate);
     }
 
     public void setLastBuildDate(long dateMillis){

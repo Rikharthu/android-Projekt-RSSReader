@@ -90,6 +90,8 @@ public class RSSFeedHandler extends DefaultHandler {
             isLink = true;
             return;
         } else if (qName.equals(TAG_PUBDATE)) {
+            // TODO сделай так уже со всем тэгами
+            descriptionBuilder=new StringBuilder();
             isPubDate = true;
             return;
         }else if(qName.equals(TAG_LASTBUILDDATE)){
@@ -125,6 +127,10 @@ public class RSSFeedHandler extends DefaultHandler {
                 item.setDescription(descriptionBuilder.toString());
                 descriptionBuilder=null;
             }
+        }else if(qName.equals("pubDate")){
+            isPubDate=false;
+            item.setPubDate(descriptionBuilder.toString());
+            descriptionBuilder=null;
         }
     }
 
@@ -134,79 +140,20 @@ public class RSSFeedHandler extends DefaultHandler {
         String s = new String(ch, start, length);
         Log.e("RSSHandler", "characters()\t\t\t" + s);
 
-        // TODO - refactor: make main if to be if(isItem) and etc..
-        // store this string in the appropriate RSSFeed or RSSItem
-//        if (isTitle) {
-//            Log.d("RSSHandler", "isTitle");
-//            if (!isItem) {
-//                // title has not been read before
-//                // => this belong to RSSFeed
-//                feed.setTitle(s);
-//            } else {
-//                // title was read before
-//                // => this belongs to RSSItem
-//                item.setTitle(s);
-//            }
-//            isTitle = false;
-//        } else if (isLink) {
-//            Log.d("RSSHandler", "isLink");
-//            item.setLink(s);
-//            isLink = false;
-//        } else if (isDescription) {
-//            Log.d("RSSHandler", "isDescription");
-//            if(isItem){
-//                if (s.startsWith("<")) {
-//                    // links to somewhere
-//                    item.setDescription("No description available.");
-//                } else {
-//                    item.setDescription(s);
-//                }
-//            }else{
-//                // guaranteed to exist due to RSS 2.0 specification
-//                feed.setDescription(s);
-//            }
-//            isDescription = false;
-//        } else if (isPubDate) {
-//            Log.d("RSSHandler", "isPubDate");
-//            if (!isItem) {
-//                //feed.setPubDate(s);
-//            } else {
-//                item.setPubDate(s);
-//            }
-//            isPubDate = false;
-//        } else if (isLastBuildDate) {
-//            feed.setLastBuildDate(s);
-//            isLastBuildDate=false;
-//        }else if(isImage && isUrl){
-//            feed.setImageUri(s);
-//            isImage=false;
-//            isUrl=false;
-//        }
-
         if(isItem){
             // RSSItem (item)
             if(isTitle){
                 item.setTitle(s);
                 isTitle=false;
             }else if(isDescription){
-//                if (s.startsWith("<")) {
-                    // TODO somehow save dat link (test with CNN)
-                    // CDATA?
-                    // links to somewhere
-//                    item.setDescription("No description available.");
-//                } else {
-                // because stupid "clever" rss providers like to insert html tags into description
-//                String prevDesc = item.getDescription()
-//                    item.setDescription(item.getDescription()+s);
-//                }
-//                isDescription=false;
                 descriptionBuilder.append(s);
             }else if(isLink){
                 item.setLink(s);
                 isLink=false;
             }else if(isPubDate){
-                item.setPubDate(s);
-                isPubDate=false;
+                // TODO stri ngbuilder
+                descriptionBuilder.append(s);
+//                item.setPubDate(item.getPubDate()+s);
             }else if(isCategory){
                 item.setCategory(s);
                 isCategory=false;

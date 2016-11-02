@@ -29,9 +29,17 @@ public class RSSFeedAdapter extends RecyclerView.Adapter<RSSFeedAdapter.ViewHold
     private boolean cropDesc;
     private boolean showDesc;
 
-    public RSSFeedAdapter(Context ctx, ArrayList<RSSItem> items) {
-        this.ctx = ctx;
+    private static ViewHolder.RSSItemClickListener listener;
+
+    public RSSFeedAdapter(Context ctx, ArrayList<RSSItem> items, ViewHolder.RSSItemClickListener listener) {
+            this.ctx = ctx;
         this.items = items;
+        RSSFeedAdapter.listener=listener;
+        refreshSettings();
+    }
+
+
+    public void refreshSettings(){
         RSSReaderApplicationSettings settings = new RSSReaderApplicationSettings(ctx);
         cropDesc=settings.shouldCropDescription();
         maxDescCharsCount=settings.getMaxCropDescChars();
@@ -70,15 +78,14 @@ public class RSSFeedAdapter extends RecyclerView.Adapter<RSSFeedAdapter.ViewHold
         return items.size();
     }
 
-    static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+
+    public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private RSSItem rssItem;
         private TextView titleTv;
         private TextView descriptionTv;
         private TextView dateTv;
         private WebView descriptionWv;
         private View dividerView;
-        private RSSItemClickListener itemClickListener;
-
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -150,10 +157,10 @@ public class RSSFeedAdapter extends RecyclerView.Adapter<RSSFeedAdapter.ViewHold
 
         @Override
         public void onClick(View view) {
-//            RSSItemClickListener.click;
+            listener.itemClicked(getAdapterPosition());
         }
 
-        interface RSSItemClickListener{
+        public interface RSSItemClickListener{
             void itemClicked(int pos);
         }
 

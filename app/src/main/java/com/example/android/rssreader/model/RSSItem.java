@@ -3,6 +3,8 @@ package com.example.android.rssreader.model;
 
 import android.text.Html;
 
+import com.example.android.rssreader.utils.RSSUtils;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -46,17 +48,7 @@ public class RSSItem {
 
     /** Get description without HTML tags (description may contain HTML tags)*/
     public String getPlainTextDescription(){
-        // TODO перенеси эту логику на сохраниние в БД
-        String data= null ;
-        try {
-//            data = URLDecoder.decode(Html.fromHtml(getDescription()).toString(), "UTF-8");
-            // "ISO-8859-1"
-            String s = URLDecoder.decode(URLEncoder.encode(getDescription(), "iso8859-1"),"UTF-8");
-            return Html.fromHtml(s).toString();
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-        return data;
+        return Html.fromHtml(description).toString();
     }
 
     public void setLink(String link) {
@@ -68,14 +60,7 @@ public class RSSItem {
     }
 
     public void setPubDate(String pubDate) {
-        Date date;
-        try {
-            date = DATE_IN_FORMAT.parse(pubDate.trim());
-        }
-        catch (ParseException e) {
-            throw new RuntimeException(e);
-        }
-        this.pubDate=date.getTime();
+        this.pubDate=RSSUtils.strDateToMillis(pubDate);
     }
 
     public void setPubDate(long millis) {

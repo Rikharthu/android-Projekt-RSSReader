@@ -1,6 +1,9 @@
 package com.example.android.rssreader.ui;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.drawable.ColorDrawable;
@@ -36,12 +39,17 @@ import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 
 import java.io.StringReader;
+import java.text.DateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements RSSFeedAdapter.ViewHolder.RSSItemClickListener {
     public static final String LOG_TAG=MainActivity.class.getSimpleName();
+
+    private MyBroadcastReceiver receiver;
 
     // DELFI
     public static final String URL="http://rus.delfi.lv/rss.php";
@@ -51,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
 //    public static final String URL="http://rss.cnn.com/rss/cnn_tech.rss";
     // Lenta
     // TODO у неё нету lastBuildDate - хэндли это
-    // TODO также не читате их дескрипшн у items
+    // TODO также не читате их дескрипшн у items  Unparseable date: "Wed, 02 N" (at offset 8)
 //    public static final String URL="https://lenta.ru/rss/news";
     // Yandex
     // TODO у них дата по другому хранится
@@ -64,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
     private LinearLayout rootLayout;
     private TextView outputTv;
     private RecyclerView rssItemsRv;
-    private RecyclerView.Adapter rssItemsAdapter;
+    private RSSFeedAdapter rssItemsAdapter;
     private ImageView channelImageIv;
     private RSSFeed feed;
 
@@ -72,6 +80,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        receiver = new MyBroadcastReceiver();
+        this.registerReceiver(receiver, new IntentFilter(MyBroadcastReceiver.ACTION));
 
         // bind views
         rootLayout= (LinearLayout) findViewById(R.id.content);
@@ -108,25 +119,7 @@ public class MainActivity extends AppCompatActivity {
 //                            Log.d(LOG_TAG,s);
 //                            outputTv.setText(s);
                             feed=readFile(response);
-                        long id=helper.saveRSSFeed(feed);
-                        feed=helper.getRSSFeed(id,true);
                             if(feed!=null){
-                                // TODO put to db
-                                helper.saveRSSFeed(
-                                        feed
-                                );
-                                outputTv.setText(feed.getTitle()+"\n"+feed.getDescription()+"\n"
-                                        +"lastBuildDate="+feed.getLastBuildDateFormatted()
-                                +"\nlink "+feed.getLink());
-
-                                // use a linear layout manager
-                                LinearLayoutManager layoutManager = new LinearLayoutManager(MainActivity.this);
-                                rssItemsRv.setLayoutManager(layoutManager);
-
-                                // specify an adapter (see also next example)
-                                rssItemsAdapter = new RSSFeedAdapter(MainActivity.this,feed.getAllItems());
-                                rssItemsRv.setAdapter(rssItemsAdapter);
-
                                 // TODO refactor-move
                                 // download channel image
                                 // Retrieves an image specified by the URL, displays it in the UI.
@@ -147,6 +140,30 @@ public class MainActivity extends AppCompatActivity {
                                                 rootLayout.setBackgroundColor(palette.getVibrantColor(defaultPanelColor));
                                                 getSupportActionBar().setTitle(feed.getTitle());
                                                 rssItemsRv.setBackgroundDrawable(new ColorDrawable(palette.getLightVibrantColor(defaultPanelColor)));
+
+                                                long id=helper.saveRSSFeed(feed);
+                                                feed=helper.getRSSFeed(id,true);
+                                                // TODO put to db
+                                                helper.saveRSSFeed(
+                                                        feed
+                                                );
+                                                DateFormat formatter = DateFormat.getDateTimeInstance(
+                                                        DateFormat.DEFAULT,
+                                                        DateFormat.SHORT,
+                                                        Locale.getDefault());
+                                                String formattedDate = formatter.format(new Date(feed.getLastBuildDate()));
+                                                outputTv.setText(feed.getTitle()+"\n"+feed.getDescription()+"\n"
+                                                        +"lastBuildDate="+formattedDate
+                                                        +"\nlink "+feed.getLink());
+
+                                                // use a linear layout manager
+                                                LinearLayoutManager layoutManager = new LinearLayoutManager(MainActivity.this);
+                                                rssItemsRv.setLayoutManager(layoutManager);
+
+                                                // specify an adapter (see also next example)
+                                                rssItemsAdapter = new RSSFeedAdapter(MainActivity.this,feed.getAllItems(),MainActivity.this);
+                                                rssItemsRv.setAdapter(rssItemsAdapter);
+
                                             }
                                         }, 0, 0, null,
                                         new Response.ErrorListener() {
@@ -156,6 +173,7 @@ public class MainActivity extends AppCompatActivity {
                                             }
                                         });
                                 queue.add(request);
+
                             }
 
                     }
@@ -168,6 +186,12 @@ public class MainActivity extends AppCompatActivity {
         // Add the request to the RequestQueue.
         queue.add(stringRequest);
 
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        this.unregisterReceiver(receiver);
     }
 
     public RSSFeed readFile(String text) {
@@ -225,4 +249,34 @@ public class MainActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+
+    @Override
+    public void itemClicked(int pos) {
+        Log.d(LOG_TAG,"click at: "+pos);
+        Bundle bundle = new Bundle();
+        RSSItem item = feed.getAllItems().get(pos);
+        // TODO refactor - no magic strings
+        bundle.putString("title",item.getTitle());
+        bundle.putString("description",item.getDescription());
+        bundle.putLong("pubDate",item.getPubDate());
+        bundle.putString("link",item.getLink());
+        Intent intent = new Intent(this,DescriptionActivity.class);
+        intent.putExtra("item",bundle);
+
+    }
+
+    class MyBroadcastReceiver extends BroadcastReceiver {
+        public static final String ACTION = "com.example.ACTION_SETTINGS_CHANGED";
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String test = intent.getStringExtra("dataToPass");
+            Log.d(LOG_TAG,"onReceive()");
+            // refresh adapter
+            // TODO refactor, probably
+            rssItemsAdapter.refreshSettings();
+            rssItemsAdapter.notifyDataSetChanged();
+        }
+    }
+
 }

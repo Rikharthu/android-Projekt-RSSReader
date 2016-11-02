@@ -1,5 +1,6 @@
 package com.example.android.rssreader.ui;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.Preference;
@@ -34,6 +35,10 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
         }if(key.equals("show_desc_text") || key.equals("pref_crop_desc") || key.equals("pref_crop_chars_count")){
             // refresh adapter
             Toast.makeText(getActivity(), "Should refresh adapter", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent();
+            intent.setAction(MainActivity.MyBroadcastReceiver.ACTION);
+            intent.putExtra("dataToPass", "refresh");
+            getActivity().sendBroadcast(intent);
         }
     }
 
