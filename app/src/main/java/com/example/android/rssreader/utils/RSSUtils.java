@@ -15,6 +15,7 @@ public abstract class RSSUtils {
 
     public static final SimpleDateFormat[] PARSE_OUT_PATTERS=
             {
+                    // most popular first
                     new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale.ENGLISH),// Wed, 02 Nov 2016 13:15:11 +0200
                     new SimpleDateFormat("dd MMM yyyy HH:mm:ss Z", Locale.ENGLISH) //02 Nov 2016 15:06:48 +0300
             };

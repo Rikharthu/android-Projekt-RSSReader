@@ -79,6 +79,7 @@ public class RSSItem {
         this.category = category;
     }
 
+    // TODO move to utils?
     public String getPubDateFormatted() {
         Date date = new Date(pubDate);
         return  DATE_OUT_FORMAT.format(date);

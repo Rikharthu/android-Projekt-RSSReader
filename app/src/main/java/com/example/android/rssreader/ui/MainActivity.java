@@ -52,7 +52,8 @@ public class MainActivity extends AppCompatActivity implements RSSFeedAdapter.Vi
     private MyBroadcastReceiver receiver;
 
     // DELFI
-    public static final String URL="http://rus.delfi.lv/rss.php";
+//    public static final String URL="http://rus.delfi.lv/rss.php";
+    public static final String URL="http://delfi.lv/rss.php";
     // BBC
 //    public static final String URL="http://feeds.bbci.co.uk/news/world/rss.xml";
     // CNN
@@ -262,6 +263,8 @@ public class MainActivity extends AppCompatActivity implements RSSFeedAdapter.Vi
         bundle.putString("link",item.getLink());
         Intent intent = new Intent(this,DescriptionActivity.class);
         intent.putExtra("item",bundle);
+        // TODO probably configure some flags
+        startActivity(intent);
 
     }
 
