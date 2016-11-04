@@ -109,10 +109,12 @@ public class RSSFeedHandler extends DefaultHandler {
             return;
         }else if(qName.equals(TAG_MEDIA_CONTENT)){
             if(isItem){
+                // TODO <enclosure> tag too
                 String medium = atts.getValue("medium");
                 if(medium!=null && medium.equals("image")){
                     String url=atts.getValue("url");
                     if(url!=null && !url.isEmpty()){
+                        // TODO we store only one image
                         item.addImageUrl(url);
                     }
                 }

@@ -60,13 +60,13 @@ public class RSSUtils {
             new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale.ENGLISH);
 
     public static String toUtf8(String text){
-        try {
 
-            return URLDecoder.decode(URLEncoder.encode(text, "iso8859-1"),"UTF-8");
+        try {
+            return new String(text.getBytes("ISO-8859-1"), "UTF-8");
         } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
             return null;
         }
+
     }
 
     public static long strDateToMillis(String dateStr){
@@ -182,6 +182,7 @@ public class RSSUtils {
 
 
     }
+
 
 
     public interface OnFeedDownloadedListener {
