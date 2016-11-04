@@ -20,8 +20,6 @@ import org.xml.sax.XMLReader;
 
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -29,8 +27,6 @@ import java.util.Locale;
 
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
-
-import static android.R.attr.format;
 
 public class RSSUtils {
 
@@ -59,7 +55,7 @@ public class RSSUtils {
     public static final SimpleDateFormat DATE_IN_FORMAT =
             new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale.ENGLISH);
 
-    public static String toUtf8(String text){
+    public static String is8859toUtf8(String text){
 
         try {
             return new String(text.getBytes("8859_1"), "utf-8");
@@ -103,7 +99,7 @@ public class RSSUtils {
                     public void onResponse(String response) {
                         Log.d(LOG_TAG,response);
                         // to utf 8
-                        response=toUtf8(response);
+                        response= is8859toUtf8(response);
                         feed=readFile(response);
                         if(feed!=null){
                             String imageUrl = feed.getImageUri();
