@@ -65,6 +65,7 @@ public class RSSUtils {
 
     public static String toUtf8(String text){
         try {
+
             return URLDecoder.decode(URLEncoder.encode(text, "iso8859-1"),"UTF-8");
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();

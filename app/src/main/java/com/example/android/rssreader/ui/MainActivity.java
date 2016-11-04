@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity implements RSSFeedAdapter.Vi
 
     // DELFI
 //    public static final String URL="http://rus.delfi.lv/rss.php";
-//    public static final String URL="http://delfi.lv/rss.php";
+    public static final String URL="http://delfi.lv/rss.php";
     // BBC
 //    public static final String URL="http://feeds.bbci.co.uk/news/world/rss.xml";
     // CNN
@@ -68,7 +68,7 @@ public class MainActivity extends AppCompatActivity implements RSSFeedAdapter.Vi
 //    public static final String URL="https://lenta.ru/rss/news";
     // Yandex
     // TODO у них дата по другому хранится
-    public static final String URL="https://news.yandex.ru/world.rss";
+//    public static final String URL="https://news.yandex.ru/world.rss";
     // EurekaAlert!
 //    public static final String URL="https://www.eurekalert.org/rss/technology_engineering.xml";
 
