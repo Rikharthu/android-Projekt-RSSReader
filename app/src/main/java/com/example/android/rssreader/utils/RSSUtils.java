@@ -18,14 +18,8 @@ import com.example.android.rssreader.model.RSSItem;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 
-import java.io.BufferedReader;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
-import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.text.ParseException;
@@ -35,6 +29,8 @@ import java.util.Locale;
 
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
+
+import static android.R.attr.format;
 
 public class RSSUtils {
 
@@ -50,7 +46,7 @@ public class RSSUtils {
     }
 
     // TODO сделай адаптивным ( если не подошел первый, а подошел второй, то юзать его)
-    public static final SimpleDateFormat[] PARSE_OUT_PATTERS=
+    private static SimpleDateFormat[] parseInFormats =
             {
                     // most popular first
                     new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale.ENGLISH),// Wed, 02 Nov 2016 13:15:11 +0200
@@ -75,15 +71,28 @@ public class RSSUtils {
 
     public static long strDateToMillis(String dateStr){
         Date date=null;
-        for (SimpleDateFormat format: PARSE_OUT_PATTERS) {
+        // try all our date formats
+        for(int i= 0;i<parseInFormats.length;i++){
             try {
-                date = format.parse(dateStr.trim());
+                Log.d(LOG_TAG,"try "+parseInFormats[i].toPattern());
+                date = parseInFormats[i].parse(dateStr);
+                // we wont get any further if parse fails (format is wrong)
+                // replace with active for optimization
+                Log.d(LOG_TAG,"success");
+                if(parseInFormats[0]!=parseInFormats[i]){
+                    Log.d(LOG_TAG,"swap");
+                    SimpleDateFormat format = parseInFormats[0];
+                    parseInFormats[0]=parseInFormats[i];
+                    parseInFormats[i]=format;
+                }
+                return date.getTime();
             }
             catch (ParseException e) {
+                Log.d(LOG_TAG,"fail");
                 e.printStackTrace();
             }
         }
-        return date.getTime();
+        return -1;
     }
 
     public void downloadRSSFeed(String feedUrl, final OnFeedDownloadedListener listener){
