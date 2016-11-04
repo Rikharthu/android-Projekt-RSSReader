@@ -62,7 +62,7 @@ public class RSSUtils {
     public static String toUtf8(String text){
 
         try {
-            return new String(text.getBytes("ISO-8859-1"), "UTF-8");
+            return new String(text.getBytes("8859_1"), "utf-8");
         } catch (UnsupportedEncodingException e) {
             return null;
         }
@@ -160,10 +160,10 @@ public class RSSUtils {
 
             // 3. read the file from internal storage
 //            FileInputStream in = this.openFileInput(FILENAME);
-
+            Log.d(LOG_TAG,"source text is "+text);
             // 4. parse the data
             // sax parser will use this to read from inputstream and parsing
-            InputSource is = new InputSource(new StringReader( text ) );
+            InputSource is = new InputSource(new StringReader(text ) );
             // start parsing file
             xmlreader.parse(is);
 
