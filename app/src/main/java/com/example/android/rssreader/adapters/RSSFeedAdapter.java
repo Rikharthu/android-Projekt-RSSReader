@@ -117,7 +117,8 @@ public class RSSFeedAdapter extends RecyclerView.Adapter<RSSFeedAdapter.ViewHold
             dateTv.setText(p.format(new Date(item.getPubDate())));
             titleTv.setText(rssItem.getTitle());
             // description text
-            if(descCharsCount==0){
+            if(descCharsCount==0 || rssItem.getPlainTextDescription().isEmpty()){
+                // "do not show description" is selected or there is no description
                 dividerView.setVisibility(View.GONE);
                 descriptionTv.setVisibility(View.GONE);
             }else {
@@ -126,7 +127,7 @@ public class RSSFeedAdapter extends RecyclerView.Adapter<RSSFeedAdapter.ViewHold
                 if (descCharsCount == -1) {
                     // show full description
                     descriptionTv.setText(rssItem.getPlainTextDescription());
-                } else if (descCharsCount != 0) {
+                } else{
                     String fullDesc = rssItem.getPlainTextDescription();
                     if (fullDesc.length() <= descCharsCount) {
                         descriptionTv.setText(fullDesc);

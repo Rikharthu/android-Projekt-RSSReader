@@ -24,6 +24,7 @@ import static com.example.android.rssreader.model.RSSTags.TAG_URL;
 /** This class is used to parse the XML file
  * Is SAX parser's event handler*/
 public class RSSFeedHandler extends DefaultHandler {
+    public static final String TAG_MEDIA_CONTENT = "media:content";
     // RSS 2.0 specification:
     // https://validator.w3.org/feed/docs/rss2.html
 
@@ -106,6 +107,17 @@ public class RSSFeedHandler extends DefaultHandler {
         }else if(qName.equals(TAG_CATEGORY)){
             isCategory=true;
             return;
+        }else if(qName.equals(TAG_MEDIA_CONTENT)){
+            if(isItem){
+                String medium = atts.getValue("medium");
+                if(medium!=null && medium.equals("image")){
+                    String url=atts.getValue("url");
+                    if(url!=null && !url.isEmpty()){
+                        item.addImageUrl(url);
+                    }
+                }
+            }
+            Log.d("RSSHandler","MEDIA CONTENT");
         }
     }
 
@@ -118,7 +130,6 @@ public class RSSFeedHandler extends DefaultHandler {
             feed.addItem(item);
             isItem = false;
             Log.d("RSSFeedHandler", item.toString());
-            return;
         }else if(qName.equals(TAG_IMAGE)){
             isImage=false;
         }else if(qName.equals(TAG_DESCRIPTION)){
@@ -129,7 +140,9 @@ public class RSSFeedHandler extends DefaultHandler {
             }
         }else if(qName.equals("pubDate")){
             isPubDate=false;
-            item.setPubDate(descriptionBuilder.toString());
+            // с CNN ловит баг с датой
+            if(isItem)
+                item.setPubDate(descriptionBuilder.toString());
             descriptionBuilder=null;
         }
     }

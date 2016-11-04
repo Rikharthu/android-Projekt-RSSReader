@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.util.Log;
 
 import com.example.android.rssreader.model.RSSFeed;
@@ -134,7 +135,7 @@ public class RSSDBHelper extends SQLiteOpenHelper {
                 feed.setLastBuildDate(dbCursor.getLong(dbCursor.getColumnIndex(FEED_COLUMN_NAME_LAST_BUILD_DATE)));
                 // TODO handle if no entry
                 byte[] bitmapBlob=dbCursor.getBlob(dbCursor.getColumnIndex(FEED_COLUMN_NAME_IMAGE));
-//            feed.setLogo(BitmapFactory.decodeByteArray(bitmapBlob, 0, bitmapBlob.length));
+                feed.setLogo(BitmapFactory.decodeByteArray(bitmapBlob, 0, bitmapBlob.length));
                 return feed;
             }else{
                 return null;
