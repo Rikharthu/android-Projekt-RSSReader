@@ -28,7 +28,7 @@ import static com.example.android.rssreader.database.RSSDBContract.ITEMS_COLUMN_
 import static com.example.android.rssreader.database.RSSDBContract.ITEMS_COLUMN_NAME_PUB_DATE;
 import static com.example.android.rssreader.database.RSSDBContract.ITEMS_COLUMN_NAME_TITLE;
 import static com.example.android.rssreader.database.RSSDBContract.ITEMS_TABLE_NAME;
-import static com.example.android.rssreader.utils.RSSUtils.toUtf8;
+import static com.example.android.rssreader.utils.RSSUtils.is8859toUtf8;
 
 public class RSSDBHelper extends SQLiteOpenHelper {
     public static final String LOG_TAG=RSSDBHelper.class.getSimpleName();
@@ -93,9 +93,9 @@ public class RSSDBHelper extends SQLiteOpenHelper {
 
     public long saveRSSFeed(RSSFeed feed){
         ContentValues channel = new ContentValues();
-        channel.put(FEED_COLUMN_NAME_TITLE,toUtf8(feed.getTitle()));
+        channel.put(FEED_COLUMN_NAME_TITLE, is8859toUtf8(feed.getTitle()));
         channel.put(FEED_COLUMN_NAME_LINK,feed.getLink());
-        channel.put(FEED_COLUMN_NAME_DESCRIPTION,toUtf8(feed.getDescription()));
+        channel.put(FEED_COLUMN_NAME_DESCRIPTION, is8859toUtf8(feed.getDescription()));
         channel.put(FEED_COLUMN_NAME_LAST_BUILD_DATE,feed.getLastBuildDate());
         if(feed.getLogo()!=null){
             ByteArrayOutputStream stream = new ByteArrayOutputStream();
@@ -108,9 +108,9 @@ public class RSSDBHelper extends SQLiteOpenHelper {
         // rss items
         for (RSSItem item: feed.getAllItems()) {
             ContentValues itemValues = new ContentValues();
-            itemValues.put(ITEMS_COLUMN_NAME_TITLE,toUtf8(item.getTitle()));
+            itemValues.put(ITEMS_COLUMN_NAME_TITLE, is8859toUtf8(item.getTitle()));
             itemValues.put(ITEMS_COLUMN_NAME_LINK,item.getLink());
-            itemValues.put(ITEMS_COLUMN_NAME_DESCRIPTION,toUtf8(item.getDescription()));
+            itemValues.put(ITEMS_COLUMN_NAME_DESCRIPTION, is8859toUtf8(item.getDescription()));
             itemValues.put(ITEMS_COLUMN_NAME_PUB_DATE,item.getPubDate());
             itemValues.put(ITEMS_COLUMN_NAME_FEED_ID,rowId);
             db.insert(ITEMS_TABLE_NAME,null,itemValues);

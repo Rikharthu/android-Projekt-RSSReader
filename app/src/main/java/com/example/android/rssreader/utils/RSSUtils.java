@@ -3,6 +3,7 @@ package com.example.android.rssreader.utils;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.os.AsyncTask;
 import android.util.Log;
 
 import com.android.volley.Request;
@@ -18,8 +19,16 @@ import com.example.android.rssreader.model.RSSItem;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
+import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -57,11 +66,12 @@ public class RSSUtils {
 
     public static String is8859toUtf8(String text){
 
-        try {
-            return new String(text.getBytes("8859_1"), "utf-8");
-        } catch (UnsupportedEncodingException e) {
-            return null;
-        }
+//        try {
+//            return new String(text.getBytes("8859_1"), "utf-8");
+            return text;
+//        } catch (UnsupportedEncodingException e) {
+//            return null;
+//        }
 
     }
 
@@ -91,59 +101,53 @@ public class RSSUtils {
         return -1;
     }
 
-    public void downloadRSSFeed(String feedUrl, final OnFeedDownloadedListener listener){
-        // Request a string response from the provided URL.
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, feedUrl,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        Log.d(LOG_TAG,response);
-                        // to utf 8
-                        response= is8859toUtf8(response);
-                        feed=readFile(response);
-                        if(feed!=null){
-                            String imageUrl = feed.getImageUri();
-                            if(imageUrl!=null) {
-                                // TODO refactor-move
-                                // download channel image
-                                // Retrieves an image specified by the URL, displays it in the UI.
-                                ImageRequest request = new ImageRequest(feed.getImageUri(),
-                                        new Response.Listener<Bitmap>() {
-                                            @Override
-                                            public void onResponse(Bitmap bitmap) {
-                                                Log.d(LOG_TAG, "bitmap byte count: " + bitmap.getByteCount() + "");
-                                                feed.setLogo(bitmap);
-                                                listener.feedDownloaded(feed);
-                                            }
-                                        }, 0, 0, null,
-                                        new Response.ErrorListener() {
-                                            public void onErrorResponse(VolleyError error) {
-                                                // TODO handle error
-                                                listener.feedDownloaded(feed);
-                                            }
-                                        });
-                                queue.add(request);
-                            }else{
-                                listener.feedDownloaded(feed);
-                            }
-                        }else{
-                            // will be null
+    public RSSFeed downloadFeed(String myurl, final OnFeedDownloadedListener listener) {
+        try {
+            InputStream is = null;
+            URL url = new URL(myurl);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setReadTimeout(10000 /* milliseconds */);
+            conn.setConnectTimeout(15000 /* milliseconds */);
+            conn.setRequestMethod("GET");
+            conn.setDoInput(true);
+            // Starts the query
+            conn.connect();
+            int response = conn.getResponseCode();
+            is = conn.getInputStream();
+
+            // Convert the InputStream into a string
+            Reader reader = null;
+            reader = new InputStreamReader(is, "UTF-8");
+            feed = readFile(reader);
+
+            ImageRequest request = new ImageRequest(feed.getImageUri(),
+                    new Response.Listener<Bitmap>() {
+                        @Override
+                        public void onResponse(Bitmap bitmap) {
+                            Log.d(LOG_TAG, "bitmap byte count: " + bitmap.getByteCount() + "");
+                            feed.setLogo(bitmap);
                             listener.feedDownloaded(feed);
                         }
-
-                    }
-                }, new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Log.e(LOG_TAG,error.toString());
-                        listener.feedDownloaded(feed);
-                    }
-        });
-        // Add the request to the RequestQueue.
-        queue.add(stringRequest);
+                    }, 0, 0, null,
+                    new Response.ErrorListener() {
+                        public void onErrorResponse(VolleyError error) {
+                            // TODO handle error
+                            listener.feedDownloaded(feed);
+                        }
+                    });
+            queue.add(request);
+            is.close();
+            return feed;
+            // Makes sure that the InputStream is closed after the app is
+            // finished using it.
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+        }
+        return null;
     }
 
-    public RSSFeed readFile(String text) {
+    public RSSFeed readFile(Reader text) {
         try {
             // 1. get the XML reader (SAX api)
             SAXParserFactory factory = SAXParserFactory.newInstance();
@@ -159,7 +163,7 @@ public class RSSUtils {
             Log.d(LOG_TAG,"source text is "+text);
             // 4. parse the data
             // sax parser will use this to read from inputstream and parsing
-            InputSource is = new InputSource(new StringReader(text ) );
+            InputSource is = new InputSource(text);
             // start parsing file
             xmlreader.parse(is);
 

@@ -56,8 +56,8 @@ public class MainActivity extends AppCompatActivity implements RSSFeedAdapter.Vi
     private MyBroadcastReceiver receiver;
 
     // DELFI
-    public static final String URL="http://rus.delfi.lv/rss.php";
-//    public static final String URL="http://delfi.lv/rss.php";
+//    public static final String URL="http://rus.delfi.lv/rss.php";
+    public static final String URL="http://delfi.lv/rss.php";
     // BBC
 //    public static final String URL="http://feeds.bbci.co.uk/news/world/rss.xml";
     // CNN
@@ -107,7 +107,7 @@ public class MainActivity extends AppCompatActivity implements RSSFeedAdapter.Vi
             columns+=" "+column;
         }
 
-        RSSUtils utils = new RSSUtils(this);
+        final RSSUtils utils = new RSSUtils(this);
         final RSSUtils.OnFeedDownloadedListener feedListener = new RSSUtils.OnFeedDownloadedListener() {
             @Override
             public void feedDownloaded(RSSFeed f) {
@@ -149,7 +149,13 @@ public class MainActivity extends AppCompatActivity implements RSSFeedAdapter.Vi
                 }
             }
         };
-        utils.downloadRSSFeed(URL,feedListener);
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                utils.downloadFeed(URL,feedListener);;
+            }
+        });
+        thread.start();
 
     }
 
