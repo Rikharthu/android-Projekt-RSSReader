@@ -2,6 +2,7 @@ package com.example.android.rssreader.adapters;
 
 
 import android.content.Context;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,17 +25,18 @@ public class RSSFeedAdapter extends RecyclerView.Adapter<RSSFeedAdapter.ViewHold
     private static final String LOG_TAG = RSSFeedAdapter.class.getSimpleName();
     private Context ctx;
     private ArrayList<RSSItem> items;
-    private int maxDescCharsCount;
 
-    private boolean cropDesc;
-    private boolean showDesc;
 
-    private static ViewHolder.RSSItemClickListener listener;
+    private  boolean cropDesc;
+    private  boolean showDesc;
+    private  int maxDescCharsCount;
+
+    private ViewHolder.RSSItemClickListener listener;
 
     public RSSFeedAdapter(Context ctx, ArrayList<RSSItem> items, ViewHolder.RSSItemClickListener listener) {
-            this.ctx = ctx;
+        this.ctx = ctx;
         this.items = items;
-        RSSFeedAdapter.listener=listener;
+        this.listener=listener;
         refreshSettings();
     }
 
@@ -54,7 +56,7 @@ public class RSSFeedAdapter extends RecyclerView.Adapter<RSSFeedAdapter.ViewHold
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindViewHolder(ViewHolder holder, final int position) {
         // might or might not be
         holder.setTitle(items.get(position).getTitle());
 
@@ -71,6 +73,13 @@ public class RSSFeedAdapter extends RecyclerView.Adapter<RSSFeedAdapter.ViewHold
             holder.bind(items.get(position),-1);
         }
         // else - do not show text at all
+
+        holder.cardView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                listener.itemClicked(position);
+            }
+        });
     }
 
     @Override
@@ -79,22 +88,22 @@ public class RSSFeedAdapter extends RecyclerView.Adapter<RSSFeedAdapter.ViewHold
     }
 
 
-    public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public static class ViewHolder extends RecyclerView.ViewHolder{
+        public CardView cardView;
         private RSSItem rssItem;
         private TextView titleTv;
         private TextView descriptionTv;
         private TextView dateTv;
-        private WebView descriptionWv;
         private View dividerView;
 
         public ViewHolder(View itemView) {
             super(itemView);
+            cardView= (CardView) itemView.findViewById(R.id.card_view);
             titleTv= (TextView) itemView.findViewById(R.id.title_text);
             descriptionTv= (TextView) itemView.findViewById(R.id.description_text);
             dateTv= (TextView) itemView.findViewById(R.id.date_tv);
             dividerView=itemView.findViewById(R.id.item_divider);
 //            descriptionWv= (WebView) itemView.findViewById(R.id.description_text);
-            itemView.setOnClickListener(this);
         }
 
         public void setTitle(String title){
@@ -156,10 +165,7 @@ public class RSSFeedAdapter extends RecyclerView.Adapter<RSSFeedAdapter.ViewHold
 //            descriptionWv.loadDataWithBaseURL("", description, "text/html", "UTF-8", "");
         }
 
-        @Override
-        public void onClick(View view) {
-            listener.itemClicked(getAdapterPosition());
-        }
+
 
         public interface RSSItemClickListener{
             void itemClicked(int pos);

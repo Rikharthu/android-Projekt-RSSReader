@@ -17,6 +17,7 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -49,15 +50,18 @@ import java.util.Locale;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
+import static com.example.android.rssreader.ui.DescriptionActivity.FEED_ID_KEY;
+import static com.example.android.rssreader.ui.DescriptionActivity.SELECTED_ITEM_POS_KEY;
+
 public class MainActivity extends AppCompatActivity implements RSSFeedAdapter.ViewHolder.RSSItemClickListener,
         AddRSSChannelDialogFragment.AddChannelDialogListener {
-    public static final String LOG_TAG=MainActivity.class.getSimpleName();
+    public static final String LOG_TAG = MainActivity.class.getSimpleName();
 
     private MyBroadcastReceiver receiver;
 
     // DELFI
 //    public static final String URL="http://rus.delfi.lv/rss.php";
-    public static final String URL="http://delfi.lv/rss.php";
+    public static final String URL = "http://delfi.lv/rss.php";
     // BBC
 //    public static final String URL="http://feeds.bbci.co.uk/news/world/rss.xml";
     // CNN
@@ -80,6 +84,7 @@ public class MainActivity extends AppCompatActivity implements RSSFeedAdapter.Vi
     private RSSFeedAdapter rssItemsAdapter;
     private ImageView channelImageIv;
     private RSSFeed feed;
+    long id;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,33 +95,33 @@ public class MainActivity extends AppCompatActivity implements RSSFeedAdapter.Vi
         this.registerReceiver(receiver, new IntentFilter(MyBroadcastReceiver.ACTION));
 
         // bind views
-        rootLayout= (LinearLayout) findViewById(R.id.content);
-        outputTv= (TextView) findViewById(R.id.output_tv);
-        rssItemsRv= (RecyclerView) findViewById(R.id.item_rv);
-        channelImageIv= (ImageView) findViewById(R.id.channel_image);
+        rootLayout = (LinearLayout) findViewById(R.id.content);
+        outputTv = (TextView) findViewById(R.id.output_tv);
+        rssItemsRv = (RecyclerView) findViewById(R.id.item_rv);
+        channelImageIv = (ImageView) findViewById(R.id.channel_image);
 
         // database
-        final RSSDBHelper helper=RSSDBHelper.getInstance(this);
+        final RSSDBHelper helper = RSSDBHelper.getInstance(this);
         Cursor dbCursor = helper.getReadableDatabase().query(RSSDBContract.FEED_TABLE_NAME, null, null, null, null, null, null);
         String[] columnNames = dbCursor.getColumnNames();
-        while(dbCursor.moveToNext()){
-            Log.d(LOG_TAG,"title: "+dbCursor.getString(dbCursor.getColumnIndex("title"))+"");
+        while (dbCursor.moveToNext()) {
+            Log.d(LOG_TAG, "title: " + dbCursor.getString(dbCursor.getColumnIndex("title")) + "");
         }
-        String columns="";
-        for (String column: columnNames) {
-            columns+=" "+column;
+        String columns = "";
+        for (String column : columnNames) {
+            columns += " " + column;
         }
 
         final RSSUtils utils = new RSSUtils(this);
         final RSSUtils.OnFeedDownloadedListener feedListener = new RSSUtils.OnFeedDownloadedListener() {
             @Override
             public void feedDownloaded(RSSFeed f) {
-                if(f!=null) {
-                    long id = helper.saveRSSFeed(f);
+                if (f != null) {
+                    id = helper.saveRSSFeed(f);
                     // db
                     // TODO save image urls in db too
-//                    feed = helper.getRSSFeed(id, true);
-                    feed=f;
+                    feed = helper.getRSSFeed(id, true);
+//                    feed = f;
                     // we got feed
                     Palette palette = Palette.from(feed.getLogo()).generate();
                     channelImageIv.setImageBitmap(feed.getLogo());
@@ -144,7 +149,7 @@ public class MainActivity extends AppCompatActivity implements RSSFeedAdapter.Vi
                     // specify an adapter (see also next example)
                     rssItemsAdapter = new RSSFeedAdapter(MainActivity.this, feed.getAllItems(), MainActivity.this);
                     rssItemsRv.setAdapter(rssItemsAdapter);
-                }else{
+                } else {
                     Toast.makeText(MainActivity.this, "Invalid feed", Toast.LENGTH_SHORT).show();
                 }
             }
@@ -152,7 +157,8 @@ public class MainActivity extends AppCompatActivity implements RSSFeedAdapter.Vi
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                utils.downloadFeed(URL,feedListener);;
+                utils.downloadFeed(URL, feedListener);
+                ;
             }
         });
         thread.start();
@@ -173,11 +179,11 @@ public class MainActivity extends AppCompatActivity implements RSSFeedAdapter.Vi
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch(item.getItemId()){
+        switch (item.getItemId()) {
             case R.id.menu_settings:
-                // open settings activity
+                // Settings
                 Toast.makeText(this, "Settings", Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(this,SettingsActivity.class);
+                Intent intent = new Intent(this, SettingsActivity.class);
                 startActivity(intent);
                 return true;
             case R.id.menu_about:
@@ -189,25 +195,28 @@ public class MainActivity extends AppCompatActivity implements RSSFeedAdapter.Vi
 
     @Override
     public void itemClicked(int pos) {
-        Log.d(LOG_TAG,"click at: "+pos);
-//        Bundle bundle = new Bundle();
+        Log.d(LOG_TAG, "click at: " + pos);
         RSSItem item = feed.getAllItems().get(pos);
-        // TODO refactor - no magic strings
-//        bundle.putString("title",item.getTitle());
-//        bundle.putString("description",item.getDescription());
-//        bundle.putLong("pubDate",item.getPubDate());
-//        bundle.putString("link",item.getLink());
-        Intent intent = new Intent(this,DescriptionActivity.class);
-        intent.putExtra("item",item);
+        Intent intent = new Intent(this, DescriptionActivity.class);
+        intent.putExtra(FEED_ID_KEY, id);
+        intent.putExtra(SELECTED_ITEM_POS_KEY, pos);
         // TODO probably configure some flags
+        // TODO or replace with parcelable
         startActivity(intent);
+
+        // FRAGMENT VERSION
+
+//        DescriptionFragment fragment = DescriptionFragment.newInstance(feed,pos);
+//        FrameLayout frameLayout = (FrameLayout) findViewById(R.id.placeholder);
+//        FragmentManager fragmentManager = getSupportFragmentManager();
+//        fragmentManager.beginTransaction().add(R.id.placeholder,fragment).commit();
 
     }
 
     @Override
     public void onDialogPositiveClick(String url) {
         // attempt to download
-        Toast.makeText(this, "Added to feed "+url, Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Added to feed " + url, Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -221,7 +230,7 @@ public class MainActivity extends AppCompatActivity implements RSSFeedAdapter.Vi
         @Override
         public void onReceive(Context context, Intent intent) {
             String test = intent.getStringExtra("dataToPass");
-            Log.d(LOG_TAG,"onReceive()");
+            Log.d(LOG_TAG, "onReceive()");
             // refresh adapter
             // TODO refactor, probably
             rssItemsAdapter.refreshSettings();
