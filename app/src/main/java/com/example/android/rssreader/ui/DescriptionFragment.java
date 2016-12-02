@@ -45,10 +45,10 @@ public class DescriptionFragment extends Fragment {
     private TextView channelTv;
     private TextView titleTv;
     private TextView dateTv;
-    private TextView descriptionTv;
+//    private TextView descriptionTv;
     private Button readnowBtn;
     private ImageView imageView;
-//    private WebView descriptionWv;
+    private MyWebView descriptionWv;
     private ScrollView scrollView;
     private LinearLayout contentLayout;
 
@@ -92,12 +92,19 @@ public class DescriptionFragment extends Fragment {
     private void initData() {
         titleTv.setText(item.getTitle());
         dateTv.setText(StringUtils.getFormattedLocalDate(item.getPubDate()));
-        descriptionTv.setText(Html.fromHtml(item.getDescription()));
-//        descriptionWv.getSettings().setJavaScriptEnabled(true);
-//        descriptionWv.loadDataWithBaseURL("", item.getDescription(), "text/html", "UTF-8", "");
-//        descriptionWv.setBackgroundColor(Color.TRANSPARENT);
-//        // for TalkBack and screen readers
-//        descriptionWv.setContentDescription(item.getPlainTextDescription());
+//        descriptionTv.setText(Html.fromHtml(item.getDescription()));
+        descriptionWv.getSettings().setJavaScriptEnabled(true);
+        descriptionWv.loadDataWithBaseURL("", item.getDescription(), "text/html", "UTF-8", "");
+        descriptionWv.setBackgroundColor(Color.TRANSPARENT);
+        descriptionWv.setWebViewClient(new WebViewClient(){
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                super.onPageFinished(view, url);
+                rootView.invalidate();
+            }
+        });
+        // for TalkBack and screen readers
+        descriptionWv.setContentDescription(item.getPlainTextDescription());
         readnowBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -136,9 +143,9 @@ public class DescriptionFragment extends Fragment {
         channelTv = (TextView) rootView.findViewById(R.id.description_channel_tv);
         titleTv = (TextView) rootView.findViewById(R.id.description_title_tv);
         dateTv = (TextView) rootView.findViewById(R.id.description_date_tv);
-        descriptionTv = (TextView) rootView.findViewById(R.id.details_description_text_tv);
+//        descriptionTv = (TextView) rootView.findViewById(R.id.details_description_text_tv);
         readnowBtn = (Button) rootView.findViewById(R.id.description_readnow_btn);
-//        descriptionWv = (WebView) rootView.findViewById(R.id.description_webview);
+        descriptionWv = (MyWebView) rootView.findViewById(R.id.description_webview);
         imageView = (ImageView) rootView.findViewById(R.id.description_img);
         scrollView = (ScrollView) rootView.findViewById(R.id.description_scroll_view);
     }

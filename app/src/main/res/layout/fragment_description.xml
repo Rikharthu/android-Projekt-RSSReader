@@ -73,11 +73,10 @@
             android:layout_height="wrap_content"
             android:visibility="gone"/>
 
-        <WebView
+        <com.example.android.rssreader.ui.MyWebView
             android:id="@+id/description_webview"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
+            android:layout_height="wrap_content"
             android:descendantFocusability="blocksDescendants"/>
 
     </LinearLayout>
