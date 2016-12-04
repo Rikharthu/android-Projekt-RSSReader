@@ -14,6 +14,8 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebResourceError;
+import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
@@ -45,7 +47,7 @@ public class DescriptionFragment extends Fragment {
     private TextView channelTv;
     private TextView titleTv;
     private TextView dateTv;
-//    private TextView descriptionTv;
+    private TextView descriptionTv;
     private Button readnowBtn;
     private ImageView imageView;
     private WebView descriptionWv;
@@ -95,10 +97,25 @@ public class DescriptionFragment extends Fragment {
 //        descriptionTv.setText(Html.fromHtml(item.getDescription()));
         descriptionWv.getSettings().setJavaScriptEnabled(true);
         descriptionWv.setBackgroundColor(Color.TRANSPARENT);
+        descriptionWv.setWebViewClient(new WebViewClient(){
+            @Override
+            public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
+                super.onReceivedError(view, request, error);
+                // hid webview, use description text view
+                // TODO check if is not null or empty and replace with "no desc available"
+                descriptionWv.setVisibility(View.GONE);
+                descriptionTv.setVisibility(View.VISIBLE);
+                descriptionTv.setText(item.);
+            }
+        });
         // for TalkBack and screen readers
         if(item.getPlainTextDescription()==null || item.getPlainTextDescription().isEmpty()){
             // TODO hide webview, put textview
             descriptionWv.loadDataWithBaseURL("", "<i style=\"color:#c8c8c8\">no description available</i>", "text/html", "UTF-8", "");
+            descriptionWv.setVisibility(View.GONE);
+            descriptionTv.setVisibility(View.VISIBLE);
+            // TODO remove unsupported tags (Jsoup)
+            descriptionTv.setText(Html.fromHtml(item.getDescription()));
         }else {
             descriptionWv.loadDataWithBaseURL("", item.getDescription(), "text/html", "UTF-8", "");
             descriptionWv.setContentDescription(item.getPlainTextDescription());
@@ -142,7 +159,7 @@ public class DescriptionFragment extends Fragment {
         channelTv = (TextView) rootView.findViewById(R.id.description_channel_tv);
         titleTv = (TextView) rootView.findViewById(R.id.description_title_tv);
         dateTv = (TextView) rootView.findViewById(R.id.description_date_tv);
-//        descriptionTv = (TextView) rootView.findViewById(R.id.details_description_text_tv);
+        descriptionTv = (TextView) rootView.findViewById(R.id.details_description_text_tv);
         readnowBtn = (Button) rootView.findViewById(R.id.description_readnow_btn);
         descriptionWv = (WebView) rootView.findViewById(R.id.description_webview);
         imageView = (ImageView) rootView.findViewById(R.id.description_img);
