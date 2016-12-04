@@ -61,11 +61,11 @@ public class MainActivity extends AppCompatActivity implements RSSFeedAdapter.Vi
 
     // DELFI
 //    public static final String URL="http://rus.delfi.lv/rss.php";
-    public static final String URL = "http://delfi.lv/rss.php";
+//    public static final String URL = "http://delfi.lv/rss.php";
     // BBC
 //    public static final String URL="http://feeds.bbci.co.uk/news/world/rss.xml";
     // CNN
-//    public static final String URL="http://rss.cnn.com/rss/cnn_tech.rss";
+    public static final String URL="http://rss.cnn.com/rss/cnn_tech.rss";
     // Lenta
     // TODO у неё нету lastBuildDate - хэндли это
     // TODO также не читате их дескрипшн у items  Unparseable date: "Wed, 02 N" (at offset 8)
@@ -120,8 +120,8 @@ public class MainActivity extends AppCompatActivity implements RSSFeedAdapter.Vi
                     id = helper.saveRSSFeed(f);
                     // db
                     // TODO save image urls in db too
-                    feed = helper.getRSSFeed(id, true);
-//                    feed = f;
+//                    feed = helper.getRSSFeed(id, true);
+                    feed = f;
                     // we got feed
                     Palette palette = Palette.from(feed.getLogo()).generate();
                     channelImageIv.setImageBitmap(feed.getLogo());
@@ -199,6 +199,8 @@ public class MainActivity extends AppCompatActivity implements RSSFeedAdapter.Vi
         RSSItem item = feed.getAllItems().get(pos);
         Intent intent = new Intent(this, DescriptionActivity.class);
         intent.putExtra(FEED_ID_KEY, id);
+        // FIXME REMOVE. DEBUG
+        intent.putExtra("feed",feed);
         intent.putExtra(SELECTED_ITEM_POS_KEY, pos);
         // TODO probably configure some flags
         // TODO or replace with parcelable

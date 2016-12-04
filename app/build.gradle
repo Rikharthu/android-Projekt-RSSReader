@@ -34,7 +34,9 @@ dependencies {
     compile 'com.android.support:support-v4:24.2.1'
     compile 'com.android.support:support-vector-drawable:24.2.1'
     compile 'org.ocpsoft.prettytime:prettytime:3.2.7.Final'
+    compile 'org.jsoup:jsoup:1.10.1'
     // https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
     compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.5'
     testCompile 'junit:junit:4.12'
+
 }

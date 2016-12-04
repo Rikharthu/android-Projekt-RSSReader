@@ -73,7 +73,7 @@
             android:layout_height="wrap_content"
             android:visibility="gone"/>
 
-        <com.example.android.rssreader.ui.MyWebView
+        <WebView
             android:id="@+id/description_webview"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

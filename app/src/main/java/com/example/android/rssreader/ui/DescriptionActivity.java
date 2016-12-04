@@ -65,7 +65,9 @@ public class DescriptionActivity extends AppCompatActivity {
         RSSDBHelper helper = RSSDBHelper.getInstance(this);
         long id = getIntent().getLongExtra(FEED_ID_KEY,-1);
         currentItemPosition = getIntent().getIntExtra(SELECTED_ITEM_POS_KEY,1);
-        feed = helper.getRSSFeed(id, true);
+        // FIXME DEBUG (HAS IMAGES)
+//        feed = helper.getRSSFeed(id, true);
+        feed = getIntent().getParcelableExtra("feed");
 
         ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
         RSSItemFragmentPagerAdapter pagerAdapter = new RSSItemFragmentPagerAdapter(getSupportFragmentManager()

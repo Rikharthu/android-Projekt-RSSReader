@@ -48,7 +48,7 @@ public class DescriptionFragment extends Fragment {
 //    private TextView descriptionTv;
     private Button readnowBtn;
     private ImageView imageView;
-    private MyWebView descriptionWv;
+    private WebView descriptionWv;
     private ScrollView scrollView;
     private LinearLayout contentLayout;
 
@@ -94,17 +94,15 @@ public class DescriptionFragment extends Fragment {
         dateTv.setText(StringUtils.getFormattedLocalDate(item.getPubDate()));
 //        descriptionTv.setText(Html.fromHtml(item.getDescription()));
         descriptionWv.getSettings().setJavaScriptEnabled(true);
-        descriptionWv.loadDataWithBaseURL("", item.getDescription(), "text/html", "UTF-8", "");
         descriptionWv.setBackgroundColor(Color.TRANSPARENT);
-        descriptionWv.setWebViewClient(new WebViewClient(){
-            @Override
-            public void onPageFinished(WebView view, String url) {
-                super.onPageFinished(view, url);
-                rootView.invalidate();
-            }
-        });
         // for TalkBack and screen readers
-        descriptionWv.setContentDescription(item.getPlainTextDescription());
+        if(item.getPlainTextDescription()==null || item.getPlainTextDescription().isEmpty()){
+            // TODO hide webview, put textview
+            descriptionWv.loadDataWithBaseURL("", "<i style=\"color:#c8c8c8\">no description available</i>", "text/html", "UTF-8", "");
+        }else {
+            descriptionWv.loadDataWithBaseURL("", item.getDescription(), "text/html", "UTF-8", "");
+            descriptionWv.setContentDescription(item.getPlainTextDescription());
+        }
         readnowBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -130,6 +128,7 @@ public class DescriptionFragment extends Fragment {
                     new Response.ErrorListener() {
                         public void onErrorResponse(VolleyError error) {
                             // TODO handle error
+                            error.toString();
                         }
                     });
             queue.add(request);
@@ -145,7 +144,7 @@ public class DescriptionFragment extends Fragment {
         dateTv = (TextView) rootView.findViewById(R.id.description_date_tv);
 //        descriptionTv = (TextView) rootView.findViewById(R.id.details_description_text_tv);
         readnowBtn = (Button) rootView.findViewById(R.id.description_readnow_btn);
-        descriptionWv = (MyWebView) rootView.findViewById(R.id.description_webview);
+        descriptionWv = (WebView) rootView.findViewById(R.id.description_webview);
         imageView = (ImageView) rootView.findViewById(R.id.description_img);
         scrollView = (ScrollView) rootView.findViewById(R.id.description_scroll_view);
     }

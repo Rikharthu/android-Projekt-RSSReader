@@ -7,6 +7,9 @@ import android.text.Html;
 
 import com.example.android.rssreader.utils.RSSUtils;
 
+import org.jsoup.Jsoup;
+import org.jsoup.safety.Whitelist;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -77,7 +80,8 @@ public class RSSItem implements Parcelable {
     }
 
     public void setDescription(String description)     {
-        this.description = description;
+        // remove javascript and any non-text nodes
+        this.description = Jsoup.clean(description, Whitelist.basic());;
     }
 
     public String getDescription() {
