@@ -93,6 +93,8 @@ public class DescriptionFragment extends Fragment {
      */
     private void initData() {
         titleTv.setText(item.getTitle());
+        // TODO implement rss provider item name getting
+        //channelTv.setText();
         dateTv.setText(StringUtils.getFormattedLocalDate(item.getPubDate()));
 //        descriptionTv.setText(Html.fromHtml(item.getDescription()));
         descriptionWv.getSettings().setJavaScriptEnabled(true);
@@ -101,32 +103,33 @@ public class DescriptionFragment extends Fragment {
             @Override
             public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
                 super.onReceivedError(view, request, error);
-                // hid webview, use description text view
-                // TODO check if is not null or empty and replace with "no desc available"
+                // hide webview and use description text view
                 descriptionWv.setVisibility(View.GONE);
                 descriptionTv.setVisibility(View.VISIBLE);
-                descriptionTv.setText(item.);
+                if(!StringUtils.isEmptyOrNull(item.getDescription())) {
+                    descriptionTv.setText(Html.fromHtml(item.getDescription()));
+                }else{
+                    // extract to resources
+                    descriptionTv.setText(getResources().getString(R.string.no_description_availabe));
+                }
             }
         });
-        // for TalkBack and screen readers
-        if(item.getPlainTextDescription()==null || item.getPlainTextDescription().isEmpty()){
-            // TODO hide webview, put textview
-            descriptionWv.loadDataWithBaseURL("", "<i style=\"color:#c8c8c8\">no description available</i>", "text/html", "UTF-8", "");
+        if(StringUtils.isEmptyOrNull(item.getDescription())){
             descriptionWv.setVisibility(View.GONE);
             descriptionTv.setVisibility(View.VISIBLE);
-            // TODO remove unsupported tags (Jsoup)
-            descriptionTv.setText(Html.fromHtml(item.getDescription()));
+            descriptionTv.setText(getResources().getString(R.string.no_description_availabe));
         }else {
             descriptionWv.loadDataWithBaseURL("", item.getDescription(), "text/html", "UTF-8", "");
+            // FIXME надо ли?
             descriptionWv.setContentDescription(item.getPlainTextDescription());
         }
         readnowBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent i = new Intent(Intent.ACTION_VIEW);
-                i.setData(Uri.parse(item.getLink()));
+                Intent browseFeedIntent = new Intent(Intent.ACTION_VIEW);
+                browseFeedIntent.setData(Uri.parse(item.getLink()));
                 // delegate that to browser app
-                startActivity(i);
+                startActivity(browseFeedIntent);
             }
         });
         // download images if any

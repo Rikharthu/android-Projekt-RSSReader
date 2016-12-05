@@ -20,6 +20,10 @@ public abstract class StringUtils {
         return localDateFormat.format(timeMillis);
     }
 
+    public static boolean isEmptyOrNull(String string){
+        return string==null || string.isEmpty();
+    }
+
 
 
 }

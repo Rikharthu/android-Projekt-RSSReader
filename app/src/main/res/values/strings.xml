@@ -90,4 +90,5 @@
     <string name="fragment_dialog_add_new_rss_channel_desc">Please type in the RSS provider link.
     </string>
     <string name="help_channel_link">get a provider link</string>
+    <string name="no_description_availabe">no description available</string>
 </resources>

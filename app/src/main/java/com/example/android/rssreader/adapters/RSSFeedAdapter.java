@@ -7,9 +7,11 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.WebView;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.android.volley.toolbox.NetworkImageView;
+import com.example.android.rssreader.Networker;
 import com.example.android.rssreader.R;
 import com.example.android.rssreader.RSSReaderApplicationSettings;
 import com.example.android.rssreader.model.RSSItem;
@@ -18,6 +20,7 @@ import org.ocpsoft.prettytime.PrettyTime;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 public class RSSFeedAdapter extends RecyclerView.Adapter<RSSFeedAdapter.ViewHolder> {
@@ -26,6 +29,7 @@ public class RSSFeedAdapter extends RecyclerView.Adapter<RSSFeedAdapter.ViewHold
     private Context ctx;
     private ArrayList<RSSItem> items;
 
+    private Networker networker;
 
     private  boolean cropDesc;
     private  boolean showDesc;
@@ -37,6 +41,7 @@ public class RSSFeedAdapter extends RecyclerView.Adapter<RSSFeedAdapter.ViewHold
         this.ctx = ctx;
         this.items = items;
         this.listener=listener;
+        networker=Networker.getInstance(ctx);
         refreshSettings();
     }
 
@@ -57,20 +62,20 @@ public class RSSFeedAdapter extends RecyclerView.Adapter<RSSFeedAdapter.ViewHold
 
     @Override
     public void onBindViewHolder(ViewHolder holder, final int position) {
+        RSSItem item = items.get(position);
         // might or might not be
-        holder.setTitle(items.get(position).getTitle());
-
+        holder.setTitle(item.getTitle());
         // show first 100 characters if not selected "show full desc" in preferences
         // prepare
         if(!showDesc){
             // do not show description
-            holder.bind(items.get(position),0);
+            holder.bind(item,0);
         }else if(cropDesc) {
             // crop description to maxDescCharsCount
-            holder.bind(items.get(position),maxDescCharsCount);
+            holder.bind(item,maxDescCharsCount);
         }else{
             // do not crop
-            holder.bind(items.get(position),-1);
+            holder.bind(item,-1);
         }
         // else - do not show text at all
 
@@ -80,6 +85,14 @@ public class RSSFeedAdapter extends RecyclerView.Adapter<RSSFeedAdapter.ViewHold
                 listener.itemClicked(position);
             }
         });
+
+        // image
+        // TODO refactor
+        List<String> urls = item.getImageUrls();
+        if(urls!=null){
+            String url=urls.get(0);
+            networker.loadImage(url,holder.networkImageView);
+        }
     }
 
     @Override
@@ -93,6 +106,7 @@ public class RSSFeedAdapter extends RecyclerView.Adapter<RSSFeedAdapter.ViewHold
         private RSSItem rssItem;
         private TextView titleTv;
         private TextView descriptionTv;
+        private ImageView networkImageView;
         private TextView dateTv;
         private View dividerView;
 
@@ -100,6 +114,7 @@ public class RSSFeedAdapter extends RecyclerView.Adapter<RSSFeedAdapter.ViewHold
             super(itemView);
             cardView= (CardView) itemView.findViewById(R.id.card_view);
             titleTv= (TextView) itemView.findViewById(R.id.title_text);
+            networkImageView = (ImageView) itemView.findViewById(R.id.list_description_image);
             descriptionTv= (TextView) itemView.findViewById(R.id.description_text);
             dateTv= (TextView) itemView.findViewById(R.id.date_tv);
             dividerView=itemView.findViewById(R.id.item_divider);
@@ -156,6 +171,10 @@ public class RSSFeedAdapter extends RecyclerView.Adapter<RSSFeedAdapter.ViewHold
                         }
                     }
                 }
+            }
+            // TODO refactor
+            if(item.getImageUrls()!=null){
+                dividerView.setVisibility(View.VISIBLE);
             }
 
         }

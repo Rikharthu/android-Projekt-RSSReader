@@ -8,12 +8,15 @@ import android.content.IntentFilter;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.drawable.ColorDrawable;
+import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.graphics.Palette;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -80,9 +83,11 @@ public class MainActivity extends AppCompatActivity implements RSSFeedAdapter.Vi
 
     private LinearLayout rootLayout;
     private TextView outputTv;
+    private TextView feedInfoTv;
     private RecyclerView rssItemsRv;
     private RSSFeedAdapter rssItemsAdapter;
     private ImageView channelImageIv;
+    private CollapsingToolbarLayout collapsingToolbar;
     private RSSFeed feed;
     long id;
 
@@ -91,14 +96,19 @@ public class MainActivity extends AppCompatActivity implements RSSFeedAdapter.Vi
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
         receiver = new MyBroadcastReceiver();
         this.registerReceiver(receiver, new IntentFilter(MyBroadcastReceiver.ACTION));
 
         // bind views
-        rootLayout = (LinearLayout) findViewById(R.id.content);
-        outputTv = (TextView) findViewById(R.id.output_tv);
+        collapsingToolbar =(CollapsingToolbarLayout) findViewById(R.id.toolbar_layout);
+//        rootLayout = (LinearLayout) findViewById(R.id.content);
+//        outputTv = (TextView) findViewById(R.id.output_tv);
+        feedInfoTv = (TextView) findViewById(R.id.feed_info_tv);
         rssItemsRv = (RecyclerView) findViewById(R.id.item_rv);
-        channelImageIv = (ImageView) findViewById(R.id.channel_image);
+//        channelImageIv = (ImageView) findViewById(R.id.channel_image);
 
         // database
         final RSSDBHelper helper = RSSDBHelper.getInstance(this);
@@ -124,23 +134,26 @@ public class MainActivity extends AppCompatActivity implements RSSFeedAdapter.Vi
                     feed = f;
                     // we got feed
                     Palette palette = Palette.from(feed.getLogo()).generate();
-                    channelImageIv.setImageBitmap(feed.getLogo());
+//                    channelImageIv.setImageBitmap(feed.getLogo());
                     // set panel colors
                     int defaultPanelColor = 0xFF808080;
                     int defaultFabColor = 0xFFEEEEEE;
-                    getSupportActionBar().setBackgroundDrawable(new ColorDrawable(palette.getDarkVibrantColor(defaultPanelColor)));
-                    rootLayout.setBackgroundColor(palette.getVibrantColor(defaultPanelColor));
-                    getSupportActionBar().setTitle(feed.getTitle());
-                    rssItemsRv.setBackgroundDrawable(new ColorDrawable(palette.getLightVibrantColor(defaultPanelColor)));
+//                    getSupportActionBar().setBackgroundDrawable(new ColorDrawable(palette.getDarkVibrantColor(defaultPanelColor)));
+                    collapsingToolbar.setBackgroundDrawable(new ColorDrawable(palette.getVibrantColor(defaultPanelColor)));
+//                    collapsingToolbar.setContentScrimColor(palette.getMutedColor(defaultPanelColor));
+//                    rootLayout.setBackgroundColor(palette.getVibrantColor(defaultPanelColor));
+                    collapsingToolbar.setTitle(feed.getTitle());
+//                    rssItemsRv.setBackgroundDrawable(new ColorDrawable(palette.getLightVibrantColor(defaultPanelColor)));
 
                     DateFormat formatter = DateFormat.getDateTimeInstance(
                             DateFormat.DEFAULT,
                             DateFormat.SHORT,
                             Locale.getDefault());
                     String formattedDate = formatter.format(new Date(feed.getLastBuildDate()));
-                    outputTv.setText(feed.getTitle() + "\n" + feed.getDescription() + "\n"
-                            + "lastBuildDate=" + formattedDate
-                            + "\nlink " + feed.getLink());
+//                    outputTv.setText(feed.getTitle() + "\n" + feed.getDescription() + "\n"
+//                            + "lastBuildDate=" + formattedDate
+//                            + "\nlink " + feed.getLink());
+                    feedInfoTv.setText("Last Update: "+formattedDate);
 
                     // use a linear layout manager
                     LinearLayoutManager layoutManager = new LinearLayoutManager(MainActivity.this);
